@@ -27,7 +27,6 @@ public class TraceFaultProperties {
     }
 
     public static class IdempotencyConfig {
-
         private boolean enabled = false;
 
         public boolean isEnabled() {
@@ -40,9 +39,6 @@ public class TraceFaultProperties {
     }
 
     public static class DemoConfig {
-        /**
-         * Whether demo endpoints (such as reset) are enabled.
-         */
         private boolean enabled = true;
 
         public boolean isEnabled() {

@@ -21,44 +21,43 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(PaymentConflictException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentConflict(PaymentConflictException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handlePaymentConflict(PaymentConflictException ex, HttpServletRequest request) {
         log.warn("Payment conflict detected at [{}]: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 "Conflict",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     @ExceptionHandler(MissingIdempotencyKeyException.class)
-    public ResponseEntity<ErrorResponse> handleMissingIdempotencyKey(MissingIdempotencyKeyException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleMissingIdempotencyKey(MissingIdempotencyKeyException ex, HttpServletRequest request) {
         log.warn("Missing idempotency key at [{}]: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(PaymentNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentNotFound(PaymentNotFoundException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handlePaymentNotFound(PaymentNotFoundException ex, HttpServletRequest request) {
         log.info("Payment not found at [{}]: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "Not Found",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
@@ -69,19 +68,20 @@ public class GlobalExceptionHandler {
                 "Validation Error",
                 "One or more request fields failed validation.",
                 request.getRequestURI(),
-                errors);
+                errors
+        );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
         log.warn("Database integrity violation at [{}]: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 "Database Integrity Conflict",
                 "A duplicate transaction record with the same idempotency key already exists.",
-                request.getRequestURI());
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
@@ -92,7 +92,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
                 "An unexpected error occurred while processing the request.",
-                request.getRequestURI());
+                request.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

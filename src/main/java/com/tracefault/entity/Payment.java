@@ -48,8 +48,7 @@ public class Payment {
     public Payment() {
     }
 
-    public Payment(String orderId, BigDecimal amount, String currency, String idempotencyKey,
-            PaymentStatus paymentStatus) {
+    public Payment(String orderId, BigDecimal amount, String currency, String idempotencyKey, PaymentStatus paymentStatus) {
         this.orderId = orderId;
         this.amount = amount;
         this.currency = currency;
@@ -139,10 +138,8 @@ public class Payment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Payment payment = (Payment) o;
         return Objects.equals(id, payment.id);
     }

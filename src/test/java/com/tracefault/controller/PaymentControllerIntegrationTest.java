@@ -59,7 +59,6 @@ public class PaymentControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         paymentService.resetDemoData();
-        
         paymentService.setIdempotencyEnabled(false);
     }
 
@@ -91,32 +90,27 @@ public class PaymentControllerIntegrationTest {
     @Test
     @DisplayName("Test 2: Duplicate payment before correction creates two records with the same idempotency key")
     void test2_duplicatePayment_beforeCorrection_createsDuplicateRecords() throws Exception {
-        
         paymentService.setIdempotencyEnabled(false);
 
         PaymentRequest request = new PaymentRequest("ORDER-101", new BigDecimal("1000.00"), "INR");
         String idempotencyKey = "KEY-TEST-DUPLICATE-002";
 
-      
         mockMvc.perform(post("/api/payments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Idempotency-Key", idempotencyKey)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-    
         mockMvc.perform(post("/api/payments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Idempotency-Key", idempotencyKey)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-      
         List<Payment> duplicates = paymentRepository.findAllByIdempotencyKey(idempotencyKey);
         assertThat(duplicates).hasSize(2);
         assertThat(paymentRepository.count()).isEqualTo(2);
 
-    
         mockMvc.perform(get("/api/payments/statistics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalRecords", is(2)))
@@ -127,7 +121,6 @@ public class PaymentControllerIntegrationTest {
     @Test
     @DisplayName("Test 3: Duplicate payment after correction returns existing record and creates only one payment record")
     void test3_duplicatePayment_afterCorrection_returnsExistingRecordWithoutDuplication() throws Exception {
-      
         paymentService.setIdempotencyEnabled(true);
 
         PaymentRequest request = new PaymentRequest("ORDER-102", new BigDecimal("1500.00"), "INR");
@@ -154,7 +147,6 @@ public class PaymentControllerIntegrationTest {
                 .andExpect(jsonPath("$.orderId", is("ORDER-102")))
                 .andExpect(jsonPath("$.amount", is(1500.00)));
 
-       
         assertThat(paymentRepository.count()).isEqualTo(1);
         assertThat(paymentRepository.findAllByIdempotencyKey(idempotencyKey)).hasSize(1);
 
@@ -206,7 +198,6 @@ public class PaymentControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(originalRequest)))
                 .andExpect(status().isOk());
 
-      
         PaymentRequest differentAmount = new PaymentRequest("ORDER-301", new BigDecimal("2000.00"), "INR");
         mockMvc.perform(post("/api/payments")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -217,7 +208,6 @@ public class PaymentControllerIntegrationTest {
                 .andExpect(jsonPath("$.error", is("Conflict")))
                 .andExpect(jsonPath("$.message", containsString("different payment payload")));
 
-     
         PaymentRequest differentOrder = new PaymentRequest("ORDER-999", new BigDecimal("1000.00"), "INR");
         mockMvc.perform(post("/api/payments")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -225,7 +215,6 @@ public class PaymentControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(differentOrder)))
                 .andExpect(status().isConflict());
 
-       
         PaymentRequest differentCurrency = new PaymentRequest("ORDER-301", new BigDecimal("1000.00"), "USD");
         mockMvc.perform(post("/api/payments")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -233,7 +222,6 @@ public class PaymentControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(differentCurrency)))
                 .andExpect(status().isConflict());
 
-       
         assertThat(paymentRepository.count()).isEqualTo(1);
     }
 
@@ -256,7 +244,7 @@ public class PaymentControllerIntegrationTest {
         for (int i = 0; i < concurrencyLevel; i++) {
             executor.submit(() -> {
                 try {
-                    startLatch.await(); 
+                    startLatch.await();
                     var response = paymentService.processPayment(request, sharedKey, null);
                     if (response != null && response.getOrderId().equals("ORDER-CONC-100")) {
                         successResponses.incrementAndGet();
@@ -286,7 +274,6 @@ public class PaymentControllerIntegrationTest {
     void test7_statisticsVerification_reflectsActualDatabaseState() throws Exception {
         paymentService.setIdempotencyEnabled(true);
 
-      
         mockMvc.perform(get("/api/payments/statistics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalRecords", is(0)))
@@ -328,14 +315,12 @@ public class PaymentControllerIntegrationTest {
         PaymentRequest request = new PaymentRequest("ORDER-500", new BigDecimal("880.00"), "INR");
         paymentService.processPayment(request, "KEY-500", null);
 
-        // Found
         mockMvc.perform(get("/api/payments/by-key/KEY-500"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId", is("ORDER-500")))
                 .andExpect(jsonPath("$.amount", is(880.00)))
                 .andExpect(jsonPath("$.idempotencyKey", is("KEY-500")));
 
-        // Not Found
         mockMvc.perform(get("/api/payments/by-key/NON-EXISTENT-KEY"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))

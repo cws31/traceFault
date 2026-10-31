@@ -1,11 +1,19 @@
 package com.tracefault.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 
+@Schema(description = "Aggregated transaction metrics reflecting current database state")
 public class PaymentStatisticsResponse {
 
+    @Schema(description = "Total number of payment records currently stored in the database", example = "2")
     private long totalRecords;
+
+    @Schema(description = "Count of payments with SUCCESS status", example = "2")
     private long successfulPayments;
+
+    @Schema(description = "Sum of processed amounts across all successful transactions", example = "2000.00")
     private BigDecimal totalProcessedAmount;
 
     public PaymentStatisticsResponse() {

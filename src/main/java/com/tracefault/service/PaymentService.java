@@ -32,10 +32,10 @@ public class PaymentService {
     private final DatabaseIndexManager databaseIndexManager;
 
     public PaymentService(PaymentRepository paymentRepository,
-            PaymentPersistenceService paymentPersistenceService,
-            FailureSimulationService failureSimulationService,
-            TraceFaultProperties properties,
-            DatabaseIndexManager databaseIndexManager) {
+                          PaymentPersistenceService paymentPersistenceService,
+                          FailureSimulationService failureSimulationService,
+                          TraceFaultProperties properties,
+                          DatabaseIndexManager databaseIndexManager) {
         this.paymentRepository = paymentRepository;
         this.paymentPersistenceService = paymentPersistenceService;
         this.failureSimulationService = failureSimulationService;
@@ -58,9 +58,7 @@ public class PaymentService {
                 request.getOrderId(), idempotencyKey);
 
         Payment payment = paymentPersistenceService.createAndPersistPayment(request, idempotencyKey);
-
         failureSimulationService.simulateDelayIfNeeded(delayMs);
-
         return PaymentResponse.from(payment, false);
     }
 
@@ -69,8 +67,7 @@ public class PaymentService {
                 request.getOrderId(), idempotencyKey);
 
         if (idempotencyKey == null || idempotencyKey.trim().isEmpty()) {
-            throw new MissingIdempotencyKeyException(
-                    "Idempotency-Key header is required when idempotency protection is enabled.");
+            throw new MissingIdempotencyKeyException("Idempotency-Key header is required when idempotency protection is enabled.");
         }
 
         String cleanKey = idempotencyKey.trim();
@@ -88,9 +85,7 @@ public class PaymentService {
         try {
             payment = paymentPersistenceService.createAndPersistPayment(request, cleanKey);
         } catch (DataIntegrityViolationException ex) {
-
-            log.warn("Database unique constraint caught concurrent duplicate for key '{}'. Resolving existing record.",
-                    cleanKey);
+            log.warn("Database unique constraint caught concurrent duplicate for key '{}'. Resolving existing record.", cleanKey);
             Payment existing = paymentRepository.findByIdempotencyKey(cleanKey)
                     .orElseThrow(() -> ex);
             validatePayloadMatch(existing, request, cleanKey);
@@ -112,7 +107,8 @@ public class PaymentService {
                     "Idempotency key '%s' was already used for a different payment payload. " +
                             "Existing: [orderId=%s, amount=%s %s], Requested: [orderId=%s, amount=%s %s]",
                     key, existing.getOrderId(), existing.getAmount(), existing.getCurrency(),
-                    request.getOrderId(), request.getAmount(), request.getCurrency());
+                    request.getOrderId(), request.getAmount(), request.getCurrency()
+            );
             log.error("Idempotency conflict: {}", mismatchMsg);
             throw new PaymentConflictException(mismatchMsg);
         }
@@ -128,8 +124,7 @@ public class PaymentService {
     public PaymentResponse getPaymentByIdempotencyKey(String idempotencyKey) {
         return paymentRepository.findByIdempotencyKey(idempotencyKey)
                 .map(p -> PaymentResponse.from(p, false))
-                .orElseThrow(() -> new PaymentNotFoundException(
-                        "Payment with idempotency key '" + idempotencyKey + "' was not found."));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment with idempotency key '" + idempotencyKey + "' was not found."));
     }
 
     public PaymentStatisticsResponse getStatistics() {
@@ -143,8 +138,7 @@ public class PaymentService {
         log.warn("=== RESETTING DEMONSTRATION DATA ===");
         paymentRepository.deleteAll();
         databaseIndexManager.syncIndexWithMode(properties.getIdempotency().isEnabled());
-        log.info("Demonstration data cleared. Current mode: idempotency.enabled={}",
-                properties.getIdempotency().isEnabled());
+        log.info("Demonstration data cleared. Current mode: idempotency.enabled={}", properties.getIdempotency().isEnabled());
     }
 
     public synchronized void setIdempotencyEnabled(boolean enabled) {

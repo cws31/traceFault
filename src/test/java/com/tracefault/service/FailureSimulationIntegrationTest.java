@@ -58,10 +58,10 @@ public class FailureSimulationIntegrationTest {
         CompletableFuture<Void> requestFuture = CompletableFuture.runAsync(() -> {
             try {
                 mockMvc.perform(post("/api/payments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Idempotency-Key", key)
-                        .header("X-Demo-Delay-Response-Ms", String.valueOf(delayMs))
-                        .content(objectMapper.writeValueAsString(request)))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Idempotency-Key", key)
+                                .header("X-Demo-Delay-Response-Ms", String.valueOf(delayMs))
+                                .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isOk());
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -29,18 +29,15 @@ public class DatabaseIndexManager implements CommandLineRunner {
         try {
             if (idempotencyEnabled) {
                 log.info("Enforcing database unique index '{}' on payments(idempotency_key)", UNIQUE_INDEX_NAME);
-                jdbcTemplate.execute(
-                        "CREATE UNIQUE INDEX IF NOT EXISTS " + UNIQUE_INDEX_NAME + " ON payments(idempotency_key)");
+                jdbcTemplate.execute("CREATE UNIQUE INDEX IF NOT EXISTS " + UNIQUE_INDEX_NAME + " ON payments(idempotency_key)");
                 log.info("Enforced database unique index '{}' successfully.", UNIQUE_INDEX_NAME);
             } else {
-                log.info("Checking/dropping database unique index '{}' to allow duplicate payment demonstration",
-                        UNIQUE_INDEX_NAME);
+                log.info("Checking/dropping database unique index '{}' to allow duplicate payment demonstration", UNIQUE_INDEX_NAME);
                 jdbcTemplate.execute("DROP INDEX IF EXISTS " + UNIQUE_INDEX_NAME);
                 log.info("Dropped database unique index '{}' successfully (if existed).", UNIQUE_INDEX_NAME);
             }
         } catch (Exception ex) {
-            log.warn("Failed to synchronize database index with mode (enabled={}): {}", idempotencyEnabled,
-                    ex.getMessage());
+            log.warn("Failed to synchronize database index with mode (enabled={}): {}", idempotencyEnabled, ex.getMessage());
         }
     }
 }

@@ -28,7 +28,8 @@ public class PaymentPersistenceService {
                 request.getAmount(),
                 request.getCurrency(),
                 idempotencyKey,
-                PaymentStatus.SUCCESS);
+                PaymentStatus.SUCCESS
+        );
 
         Payment saved = paymentRepository.saveAndFlush(payment);
         log.info("Committed payment [id={}, orderId='{}', amount={} {}, idempotencyKey='{}'] to database",
