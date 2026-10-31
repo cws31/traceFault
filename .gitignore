@@ -28,3 +28,7 @@ target/
 
 *.log
 *.dumpstream
+recording-guide.md
+docs/recording-guide.md
+*recording-guide*.md
+*recording-guid*.md

@@ -327,4 +327,3 @@ macOS / Linux:
 
 - [docs/architecture.md](docs/architecture.md): Deep dive into transaction boundaries, sequence diagrams, and failure flows.
 - [docs/investigation-report.md](docs/investigation-report.md): Full reliability forensic report with network vs database evidence analysis.
-- [docs/recording-guide.md](docs/recording-guide.md): Step-by-step 15–20 minute recording script and Wireshark capture tutorial.
